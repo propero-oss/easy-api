@@ -11,6 +11,8 @@
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "build:watch": "rollup -c --watch rollup.config.js",
+    "run": "node dist/easy-api.cjs.js",
+    "dev": "ts-node src/index.ts",
     "clean": "rimraf dist docs coverage",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -38,6 +40,7 @@
     "@semantic-release/github": "^7.0.7",
     "@semantic-release/npm": "^7.0.5",
     "@semantic-release/release-notes-generator": "^9.0.1",
+    "@types/express": "^4.17.7",
     "@types/jest": "^26.0.7",
     "@types/node": "^14.0.27",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
@@ -77,7 +80,9 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "express": "^4.17.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/propero-oss/easy-api.git"
