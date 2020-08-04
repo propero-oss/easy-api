@@ -1,7 +1,7 @@
 import { IncomingHttpHeaders } from "http";
 import { HTTP_HANDLER_META } from "src/constants";
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "OPTIONS";
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS";
 
 export interface HttpHandlerOptions {
   contentType?: string | string[];

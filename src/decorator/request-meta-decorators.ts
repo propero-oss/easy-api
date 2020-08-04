@@ -5,9 +5,21 @@ export const Req: ParameterDecorator = createRequestInjector(() => (req) => req)
 export const Res: ParameterDecorator = createRequestInjector(() => (req, res) => res);
 export const Next: ParameterDecorator = createRequestInjector(() => (req, res, next) => next);
 
-export const Param = (name: string): ParameterDecorator => createRequestInjector(() => (req) => req.params[name]);
-export const Query = (name: string): ParameterDecorator => createRequestInjector(() => (req) => req.query[name]);
+export const Param = (name: string, parser?: (str: any) => unknown): ParameterDecorator =>
+  createRequestInjector(() => (req) => {
+    if (parser) return parser(req.params[name]);
+    return req.params[name];
+  });
+export const Query = (name: string, parser?: (str: any) => unknown): ParameterDecorator =>
+  createRequestInjector(() => (req) => {
+    if (parser) return parser(req.query[name] as any);
+    return req.query[name];
+  });
 export const Header = (name: keyof IncomingHttpHeaders): ParameterDecorator => createRequestInjector(() => (req) => req.headers[name]);
+
+export const Ip = createRequestInjector(() => (req) => req.ip);
+export const Hostname = createRequestInjector(() => (req) => req.hostname);
+export const UserAgent = createRequestInjector(() => (req) => req.headers["user-agent"]);
 
 export const Body = (field?: string): ParameterDecorator =>
   createRequestInjector(() => (req) => (field != null ? req.body[field] : req.body));

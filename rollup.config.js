@@ -22,6 +22,7 @@ const banner = template(`
  * (c) <%= year %> <%= author %>
  * @license <%= license || "MIT" %>
  */
+/* eslint-disable */
 `)({ ...pkg, nameFormatted: name, year }).trim();
 
 const outputs = [
@@ -44,7 +45,7 @@ export default {
   })),
   external,
   watch: {
-    include: ["src/**/*"],
+    include: ["src/**/*", "example/**/*"],
   },
   plugins: [sourcemaps(), paths(), commonjs(), nodeResolve(), json({ compact: true }), ts({ tsconfig: "tsconfig.build.json" })],
 };
