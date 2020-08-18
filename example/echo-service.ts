@@ -1,7 +1,5 @@
 import express, { Request } from "express";
-import { Use } from "src/decorator/http-method-decorators";
-import { Service } from "src/decorator/service-decorator";
-import { createService } from "src/util/create-service";
+import { Use, Service, createService } from "src/index";
 
 @Service()
 class EchoService {

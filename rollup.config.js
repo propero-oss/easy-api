@@ -4,6 +4,7 @@ import ts from "@wessberg/rollup-plugin-ts";
 import paths from "rollup-plugin-ts-paths";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
+import { terser } from "rollup-plugin-terser";
 import { spawn } from "child_process";
 import { keys, mapValues, upperFirst, camelCase, template } from "lodash";
 import pkg from "./package.json";
@@ -31,13 +32,13 @@ const live = !!process.env.ROLLUP_WATCH;
 
 const outputs = [
   { format: "cjs", file: main },
-  { format: "umd", file: unpkg },
-  { format: "esm", file: module },
-  { format: "iife", file: browser },
-];
+  !live && { format: "umd", file: unpkg },
+  !live && { format: "esm", file: module },
+  !live && { format: "iife", file: browser },
+].filter((it) => it);
 
 export default {
-  input: "src/index.ts",
+  input: live ? "example/echo-service.ts" : "src/index.ts",
   output: outputs.map(({ format, file }) => ({
     exports: "named",
     sourcemap: true,
@@ -57,8 +58,10 @@ export default {
     commonjs(),
     nodeResolve(),
     json({ compact: true }),
-    ts({ tsconfig: "tsconfig.build.json" }),
-    live && npmTaskAfterBuild("start", "--", "--dev"),
+    ts({ tsconfig: live ? "tsconfig.json" : "tsconfig.build.json" }),
+    live
+      ? npmTaskAfterBuild("start", "--", "--dev")
+      : terser({ output: { comments: (node, comment) => /@preserve|@license|@cc_on/i.test(comment.value) } }),
   ],
 };
 
