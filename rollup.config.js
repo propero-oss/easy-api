@@ -4,6 +4,7 @@ import ts from "@wessberg/rollup-plugin-ts";
 import paths from "rollup-plugin-ts-paths";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
+import { spawn } from "child_process";
 import { keys, mapValues, upperFirst, camelCase, template } from "lodash";
 import pkg from "./package.json";
 
@@ -14,16 +15,19 @@ const year = yearRange(pkg.since || new Date().getFullYear());
 const external = keys(dependencies || {});
 const globals = mapValues(dependencies || {}, (value, key) => formatModule(key));
 const name = formatModule(pkg.name);
+/* eslint-disable */
 const banner = template(`
 /**
- * <%= nameFormatted %> (<%= name %> v<%= version %>)
- * <%= description %>
- * <%= homepage %>
- * (c) <%= year %> <%= author %>
- * @license <%= license || "MIT" %>
+ * <%= p.nameFormatted %> (<%= p.name %> v<%= p.version %>)
+ * <%= p.description %>
+ * <%= p.homepage %>
+ * (c) <%= p.year %> <%= p.author %>
+ * @license <%= p.license || "MIT" %>
  */
-/* eslint-disable */
-`)({ ...pkg, nameFormatted: name, year }).trim();
+/* eslint-disable */`, { variable: "p" })({ ...pkg, nameFormatted: name, year }).trim();
+/* eslint-enable */
+
+const live = !!process.env.ROLLUP_WATCH;
 
 const outputs = [
   { format: "cjs", file: main },
@@ -47,5 +51,35 @@ export default {
   watch: {
     include: ["src/**/*", "example/**/*"],
   },
-  plugins: [sourcemaps(), paths(), commonjs(), nodeResolve(), json({ compact: true }), ts({ tsconfig: "tsconfig.build.json" })],
+  plugins: [
+    sourcemaps(),
+    paths(),
+    commonjs(),
+    nodeResolve(),
+    json({ compact: true }),
+    ts({ tsconfig: "tsconfig.build.json" }),
+    live && npmTaskAfterBuild("start", "--", "--dev"),
+  ],
 };
+
+function npmTaskAfterBuild(task, ...args) {
+  let instance = undefined;
+  let timeout = undefined;
+
+  function restartCommand() {
+    if (instance) instance.kill();
+    instance = spawn("npm", ["run", task, ...args], {
+      stdio: ["ignore", "inherit", "inherit"],
+      shell: true,
+    });
+  }
+
+  function writeBundle() {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(restartCommand, 1000);
+  }
+
+  process.on("exit", () => instance && instance.kill());
+
+  return { writeBundle };
+}
