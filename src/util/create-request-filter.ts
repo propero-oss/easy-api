@@ -1,6 +1,6 @@
 import { Request } from "express";
 import { IncomingHttpHeaders } from "http";
-import { HttpHandlerOptions } from "src/types";
+import { ErrorHandlerOptions, HttpHandlerOptions } from "src/types";
 import { arrayWrap } from "src/util/array-wrap";
 
 export const needsRequestFilter = (options: HttpHandlerOptions): boolean => Object.keys(options).length > 0;
@@ -24,11 +24,17 @@ export function checkHeaderValues(req: Request, headers: IncomingHttpHeaders): b
   return true;
 }
 
-export function createRequestFilter(options: HttpHandlerOptions) {
+export function checkErrorClasses(req: Request, classes: unknown[]): boolean {
+  return !!classes.find((cls) => req.__error instanceof (cls as any));
+}
+
+export function createRequestFilter(options: HttpHandlerOptions | ErrorHandlerOptions, method: string, errorHandler: boolean) {
   return (req: Request): boolean => {
     if (options.contentType && !checkContentType(req, options.contentType)) return false;
     if (options.accept && !checkAccept(req, options.accept)) return false;
     if (options.headers && !checkHeaderValues(req, options.headers)) return false;
+    if ((errorHandler && !req.__error) || (!errorHandler && req.__error && method !== "USE")) return false;
+    if ((options as ErrorHandlerOptions).classes && !checkErrorClasses(req, (options as ErrorHandlerOptions).classes!)) return false;
     // TODO: Further checks
     return true;
   };

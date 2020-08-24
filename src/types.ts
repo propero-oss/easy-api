@@ -3,14 +3,27 @@ import { IncomingHttpHeaders } from "http";
 import { HTTP_HANDLER_META, ROUTER_META } from "src/constants";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS";
-export type ExpressMethod = "USE";
+export type ExpressMethod = "USE" | "ALL";
 export type ExpressResponseType = "none" | "raw" | "json";
+export type HttpHandlerDecorator = (path?: string, options?: HttpHandlerOptions) => MethodDecorator;
+export type ErrorHandlerDecorator = (path?: string, options?: ErrorHandlerOptions) => MethodDecorator;
+export type HttpHandlerSignature = (req: Request, res: Response, next: NextFunction) => unknown;
+export type HttpErrorHandlerSignature = (err: unknown, req: Request, res: Response, next?: NextFunction) => unknown;
+export type HttpHandlerMiddleware = HttpHandlerSignature | HttpErrorHandlerSignature;
+export type ResponseGenerator = (middleware: HttpHandlerSignature, status?: number) => HttpHandlerSignature;
 
 export interface HttpHandlerOptions {
   contentType?: string | string[];
   accept?: string | string[];
   headers?: IncomingHttpHeaders;
   responseType?: ExpressResponseType;
+  before?: HttpHandlerMiddleware[];
+  after?: HttpHandlerMiddleware[];
+  status?: number;
+}
+
+export interface ErrorHandlerOptions extends HttpHandlerOptions {
+  classes?: unknown[];
 }
 
 export interface HttpHandlerMeta {
@@ -18,6 +31,9 @@ export interface HttpHandlerMeta {
   options?: HttpHandlerOptions;
   path: string;
   handler: string | symbol;
+  first?: boolean;
+  last?: boolean;
+  errorHandler?: boolean;
 }
 
 export interface WithHandlerMeta {
@@ -33,5 +49,8 @@ export interface WithRouterMeta {
   [ROUTER_META]?: RouterMeta;
 }
 
-export type HttpHandlerDecorator = (path: string, options?: HttpHandlerOptions) => MethodDecorator;
-export type HttpHandlerSignature = (req: Request, res: Response, next: NextFunction) => unknown;
+declare module "express" {
+  export interface Request {
+    __error?: unknown;
+  }
+}

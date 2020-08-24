@@ -1,6 +1,5 @@
 import { NextFunction, Response, Request } from "express";
 import { createParameterMetaAccessors, createParameterMetaDecoratorFactory } from "src/meta";
-import { ExpressResponseType, HttpHandlerSignature } from "src/types";
 
 export type RequestMetaGenerator<T = unknown> = (req: Request, res: Response, next: NextFunction) => T;
 
@@ -27,17 +26,4 @@ export function createInjectorMiddleware(
       return next(e);
     }
   };
-}
-
-const responseTypes: Partial<Record<ExpressResponseType, (middleware: HttpHandlerSignature) => HttpHandlerSignature>> = {};
-responseTypes["json"] = (middleware) => async (req, res, next) => res.json(await middleware(req, res, next));
-responseTypes["raw"] = (middleware) => async (req, res, next) => res.send(await middleware(req, res, next));
-responseTypes["none"] = (middleware) => async (req, res, next) => {
-  await middleware(req, res, next);
-  res.send();
-};
-
-export function createResponseGenerator(middleware: HttpHandlerSignature, responseType: ExpressResponseType): HttpHandlerSignature {
-  const generator = responseTypes[responseType];
-  return generator ? generator(middleware) : middleware;
 }

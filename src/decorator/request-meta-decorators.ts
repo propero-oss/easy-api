@@ -25,3 +25,5 @@ export const Body = (field?: string): ParameterDecorator =>
   createRequestInjector(() => (req) => (field != null ? req.body[field] : req.body));
 export const Session = (field?: string): ParameterDecorator =>
   createRequestInjector(() => (req) => (field != null ? (req as any).session?.[field] : (req as any).session));
+
+export const CatchError = createRequestInjector(() => (req) => (req as any).__error);

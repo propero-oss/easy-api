@@ -15,5 +15,8 @@ export function getHandlerMeta(obj: unknown): Required<HttpHandlerMeta>[] {
     if (meta) metas.push(...meta);
     obj = Object.getPrototypeOf(obj)! as WithHandlerMeta;
   } while (obj && obj !== Function.prototype && obj !== Object.prototype);
-  return metas;
+  const firsts = metas.filter((it) => it.first);
+  const lasts = metas.filter((it) => it.last);
+  const rest = metas.filter((it) => !it.first && !it.last);
+  return [...firsts, ...rest, ...lasts];
 }

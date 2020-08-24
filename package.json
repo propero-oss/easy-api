@@ -11,6 +11,7 @@
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "build:watch": "rollup -cw rollup.config.js",
+    "start": "node dist/easy-api.cjs.js",
     "clean": "rimraf dist docs coverage",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -27,8 +28,8 @@
   "author": "Propero Team <team@propero.dev>",
   "license": "MIT",
   "devDependencies": {
-    "@commitlint/cli": "^9.1.1",
-    "@commitlint/config-conventional": "^9.1.1",
+    "@commitlint/cli": "^10.0.0",
+    "@commitlint/config-conventional": "^10.0.0",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^8.4.0",
@@ -66,7 +67,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -g .commitlint.config.json -e -V"
+      "commit-msg": "commitlint -g .commitlint.config.json -eV ./.git/COMMIT_EDITMSG"
     }
   },
   "lint-staged": {

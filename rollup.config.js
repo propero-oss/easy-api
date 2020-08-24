@@ -38,7 +38,7 @@ const outputs = [
 ].filter((it) => it);
 
 export default {
-  input: live ? "example/echo-service.ts" : "src/index.ts",
+  input: live ? "example/index.ts" : "src/index.ts",
   output: outputs.map(({ format, file }) => ({
     exports: "named",
     sourcemap: true,
@@ -60,7 +60,7 @@ export default {
     json({ compact: true }),
     ts({ tsconfig: live ? "tsconfig.json" : "tsconfig.build.json" }),
     live
-      ? npmTaskAfterBuild("start", "--", "--dev")
+      ? npmTaskAfterBuild("start")
       : terser({ output: { comments: (node, comment) => /@preserve|@license|@cc_on/i.test(comment.value) } }),
   ],
 };
@@ -69,11 +69,20 @@ function npmTaskAfterBuild(task, ...args) {
   let instance = undefined;
   let timeout = undefined;
 
-  function restartCommand() {
-    if (instance) instance.kill();
+  function waitForProcessExit(process) {
+    // eslint-disable-next-line no-undef
+    return new Promise((resolve) => {
+      process.on("exit", () => setTimeout(resolve, 200));
+      process.kill();
+    });
+  }
+
+  async function restartCommand() {
+    if (instance) await waitForProcessExit(instance);
     instance = spawn("npm", ["run", task, ...args], {
       stdio: ["ignore", "inherit", "inherit"],
       shell: true,
+      env: process.env,
     });
   }
 
@@ -82,7 +91,7 @@ function npmTaskAfterBuild(task, ...args) {
     timeout = setTimeout(restartCommand, 1000);
   }
 
-  process.on("exit", () => instance && instance.kill());
+  process.on("beforeExit", () => instance && instance.kill());
 
   return { writeBundle };
 }
