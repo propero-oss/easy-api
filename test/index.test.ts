@@ -1,7 +1,7 @@
-import { HelloWorld } from "src/index";
+import { createService } from "src/index";
 
 describe("index", () => {
   it("exports its members", () => {
-    expect(HelloWorld).toBe("Hello World");
+    expect(createService).toBeDefined();
   });
 });

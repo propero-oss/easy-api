@@ -22,17 +22,18 @@
       "node"
     ],
     "lib": [
-      "esnext",
-      "dom"
+      "esnext"
     ],
     "paths": {
       "src/*": ["./src/*"],
-      "test/*": ["./test/*"]
+      "test/*": ["./test/*"],
+      "example/*": ["./example/*"]
     }
   },
   "include": [
     "src/**/*.ts",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "example/**/*.ts"
   ],
   "exclude": [
     "node_modules"

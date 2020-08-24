@@ -4,6 +4,8 @@ import ts from "@wessberg/rollup-plugin-ts";
 import paths from "rollup-plugin-ts-paths";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
+import { terser } from "rollup-plugin-terser";
+import { spawn } from "child_process";
 import { keys, mapValues, upperFirst, camelCase, template } from "lodash";
 import pkg from "./package.json";
 
@@ -14,25 +16,29 @@ const year = yearRange(pkg.since || new Date().getFullYear());
 const external = keys(dependencies || {});
 const globals = mapValues(dependencies || {}, (value, key) => formatModule(key));
 const name = formatModule(pkg.name);
+/* eslint-disable */
 const banner = template(`
 /**
- * <%= nameFormatted %> (<%= name %> v<%= version %>)
- * <%= description %>
- * <%= homepage %>
- * (c) <%= year %> <%= author %>
- * @license <%= license || "MIT" %>
+ * <%= p.nameFormatted %> (<%= p.name %> v<%= p.version %>)
+ * <%= p.description %>
+ * <%= p.homepage %>
+ * (c) <%= p.year %> <%= p.author %>
+ * @license <%= p.license || "MIT" %>
  */
-`)({ ...pkg, nameFormatted: name, year }).trim();
+/* eslint-disable */`, { variable: "p" })({ ...pkg, nameFormatted: name, year }).trim();
+/* eslint-enable */
+
+const live = !!process.env.ROLLUP_WATCH;
 
 const outputs = [
   { format: "cjs", file: main },
-  { format: "umd", file: unpkg },
-  { format: "esm", file: module },
-  { format: "iife", file: browser },
-];
+  !live && { format: "umd", file: unpkg },
+  !live && { format: "esm", file: module },
+  !live && { format: "iife", file: browser },
+].filter((it) => it);
 
 export default {
-  input: "src/index.ts",
+  input: live ? "example/index.ts" : "src/index.ts",
   output: outputs.map(({ format, file }) => ({
     exports: "named",
     sourcemap: true,
@@ -44,7 +50,48 @@ export default {
   })),
   external,
   watch: {
-    include: ["src/**/*"],
+    include: ["src/**/*", "example/**/*"],
   },
-  plugins: [sourcemaps(), paths(), commonjs(), nodeResolve(), json({ compact: true }), ts({ tsconfig: "tsconfig.build.json" })],
+  plugins: [
+    sourcemaps(),
+    paths(),
+    commonjs(),
+    nodeResolve(),
+    json({ compact: true }),
+    ts({ tsconfig: live ? "tsconfig.json" : "tsconfig.build.json" }),
+    live
+      ? npmTaskAfterBuild("start")
+      : terser({ output: { comments: (node, comment) => /@preserve|@license|@cc_on/i.test(comment.value) } }),
+  ],
 };
+
+function npmTaskAfterBuild(task, ...args) {
+  let instance = undefined;
+  let timeout = undefined;
+
+  function waitForProcessExit(process) {
+    // eslint-disable-next-line no-undef
+    return new Promise((resolve) => {
+      process.on("exit", () => setTimeout(resolve, 200));
+      process.kill();
+    });
+  }
+
+  async function restartCommand() {
+    if (instance) await waitForProcessExit(instance);
+    instance = spawn("npm", ["run", task, ...args], {
+      stdio: ["ignore", "inherit", "inherit"],
+      shell: true,
+      env: process.env,
+    });
+  }
+
+  function writeBundle() {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(restartCommand, 1000);
+  }
+
+  process.on("beforeExit", () => instance && instance.kill());
+
+  return { writeBundle };
+}
