@@ -11,6 +11,7 @@ export type HttpHandlerSignature = (req: Request, res: Response, next: NextFunct
 export type HttpErrorHandlerSignature = (err: unknown, req: Request, res: Response, next?: NextFunction) => unknown;
 export type HttpHandlerMiddleware = HttpHandlerSignature | HttpErrorHandlerSignature;
 export type ResponseGenerator = (middleware: HttpHandlerSignature, status?: number) => HttpHandlerSignature;
+export type RequestFilter = (req: Request) => boolean;
 
 export interface HttpHandlerOptions {
   contentType?: string | string[];
