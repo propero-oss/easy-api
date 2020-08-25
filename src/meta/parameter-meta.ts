@@ -16,8 +16,8 @@ export function createParameterMetaAccessors<Meta = unknown>(
 } {
   const key = Symbol(name);
   const getMeta = (target: unknown, property: string | symbol): ParameterMetaRecord<Meta> => {
-    const { constructor } = target as any;
-    const allMeta = constructor[key] ?? (constructor[key] = {});
+    if (typeof target !== "function") target = (target as any).constructor;
+    const allMeta = (target as any)[key] ?? ((target as any)[key] = {});
     return allMeta[property] ?? (allMeta[property] = {});
   };
   const setMeta = (target: unknown, property: string | symbol, index: number, value: Meta): Meta =>
