@@ -23,6 +23,7 @@ export function createInjectorMiddleware(
       const parameters = await Promise.all(meta.map((extract) => extract(req, res, next)));
       return (method as any)(...parameters);
     } catch (e) {
+      console.log("E WAS THROWN", e);
       return next(e);
     }
   };

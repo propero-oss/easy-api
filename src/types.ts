@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response, Router } from "express";
+import type { NextFunction, Request, Response, Router, RouterOptions } from "express";
 import { IncomingHttpHeaders } from "http";
 import { HTTP_HANDLER_META, ROUTER_META } from "src/constants";
 
@@ -56,6 +56,10 @@ export interface RouterMeta {
 
 export interface WithRouterMeta {
   [ROUTER_META]?: RouterMeta;
+}
+
+export interface ServiceOptions extends HttpHandlerOptions {
+  routerOptions: RouterOptions;
 }
 
 declare module "express" {
