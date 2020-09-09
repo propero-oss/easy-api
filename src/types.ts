@@ -4,18 +4,25 @@ import { HTTP_HANDLER_META, ROUTER_META } from "src/constants";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS";
 export type ExpressMethod = "USE" | "ALL";
-export type ExpressResponseType = "none" | "raw" | "json";
-export type HttpHandlerDecorator = (path?: string, options?: HttpHandlerOptions) => MethodDecorator;
-export type ErrorHandlerDecorator = (path?: string, options?: ErrorHandlerOptions) => MethodDecorator;
+export type ExpressResponseType = "none" | "raw" | "json" | "auto";
+export interface HttpHandlerDecorator {
+  (path?: string, options?: HttpHandlerOptions): MethodDecorator;
+  (options?: HttpHandlerOptions): MethodDecorator;
+}
+export interface ErrorHandlerDecorator {
+  (path?: string, options?: ErrorHandlerOptions): MethodDecorator;
+  (options?: ErrorHandlerOptions): MethodDecorator;
+}
 export type HttpHandlerSignature = (req: Request, res: Response, next: NextFunction) => unknown;
 export type HttpErrorHandlerSignature = (err: unknown, req: Request, res: Response, next?: NextFunction) => unknown;
 export type HttpHandlerMiddleware = HttpHandlerSignature | HttpErrorHandlerSignature;
 export type ResponseGenerator = (middleware: HttpHandlerSignature, status?: number) => HttpHandlerSignature;
 export type RequestFilter = (req: Request) => boolean;
+export type MaybeArray<T> = T | T[];
 
 export interface HttpHandlerOptions {
-  contentType?: string | string[];
-  accept?: string | string[];
+  contentType?: MaybeArray<string | RegExp>;
+  accept?: MaybeArray<string | RegExp>;
   headers?: IncomingHttpHeaders;
   responseType?: ExpressResponseType;
   before?: HttpHandlerMiddleware[];
@@ -24,7 +31,8 @@ export interface HttpHandlerOptions {
 }
 
 export interface ErrorHandlerOptions extends HttpHandlerOptions {
-  classes?: unknown[];
+  classes?: MaybeArray<unknown>;
+  method?: MaybeArray<HttpMethod>;
 }
 
 export interface HttpHandlerMeta {
