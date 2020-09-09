@@ -21,7 +21,7 @@ export function createInjectorMiddleware(
   return async (req, res, next) => {
     try {
       const parameters = await Promise.all(meta.map((extract) => extract(req, res, next)));
-      return await (method as any)(...parameters);
+      return (method as any)(...parameters);
     } catch (e) {
       return next(e);
     }
