@@ -23,7 +23,7 @@ function createMethodWrapper(
   const bound = (instance as any)[handler].bind(instance);
   const filter = needsRequestFilter(options) && createRequestFilter(options, method, errorHandler);
   let middleware = createInjectorMiddleware(cls, handler, bound);
-  middleware = createResponseGenerator(middleware, options.responseType ?? "json");
+  middleware = createResponseGenerator(middleware, options.responseType ?? "auto", options.status);
   return errorOrRequestHandler(errorHandler, (req, res, next) =>
     filter && !filter(req) ? next(req.__error ? req.__error : undefined) : middleware(req, res, next)
   );
