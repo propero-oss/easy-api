@@ -8,7 +8,11 @@ class EchoService {
   @All("*", { accept: "text/html", responseType: "raw" })
   public async echoHtml(req: Request) {
     const { query, body, path, originalUrl: url, baseUrl, protocol, cookies, ip, hostname, headers } = req;
-    return `<h1>Echo Service!</h1><pre>${JSON.stringify({ path, url, baseUrl, protocol, cookies, ip, hostname, headers, query, body }, undefined, 2)}</pre>`;
+    return `<h1>Echo Service!</h1><pre>${JSON.stringify(
+      { path, url, baseUrl, protocol, cookies, ip, hostname, headers, query, body },
+      undefined,
+      2
+    )}</pre>`;
   }
 
   @All("*", { accept: "application/json", responseType: "json" })

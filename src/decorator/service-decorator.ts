@@ -8,7 +8,7 @@ import {
   HttpHandlerOptions,
   HttpHandlerSignature,
   HttpMethod,
-  ServiceOptions
+  ServiceOptions,
 } from "src/types";
 import { createRequestFilter, errorMiddleware, needsRequestFilter, normalizePathOptions } from "src/util";
 import { NextFunction, Request, Response, Router } from "express";
@@ -46,7 +46,7 @@ export function Service(options?: ServiceOptions): ClassDecorator;
 export function Service(path?: string, options?: ServiceOptions): ClassDecorator;
 export function Service(pathOrOptions?: string | ServiceOptions, maybeOptions?: ServiceOptions): ClassDecorator {
   const [path, options] = normalizePathOptions(pathOrOptions, maybeOptions);
-  const serviceOptions = options ?? {} as Partial<ServiceOptions>;
+  const serviceOptions = options ?? ({} as Partial<ServiceOptions>);
   const { before: serviceBefore = [], after: serviceAfter = [] } = serviceOptions;
   return (cls) => {
     const factory = (instance: InstanceType<typeof cls & any>) => {
