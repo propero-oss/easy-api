@@ -18,6 +18,7 @@ yarn add @propero/easy-api
 
 For further examples check out the [example directory](example).
 
+##### Simple Hello World Service
 ```typescript
 import express from "express";
 import { Service, createService, Get, Param } from "@propero/easy-api";
@@ -33,4 +34,42 @@ class HelloService {
 const app = express();
 app.use("/api/v1", createService(new HelloService()));
 app.listen(3000, () => console.log("http://localhost:3000/api/v1/hello"));
+```
+
+##### Simple Custom Injection Decorator
+```typescript
+import express from "express";
+import { createInjectorMiddleware, Post, Catch, CatchError } from "@propero/easy-api";
+import { validateOrReject, ValidatorOptions, IsEmail } from "class-validator";
+import { plainToClass } from "class-transformer";
+
+const Validated = (Cls: unknown, validateOptions?: ValidatorOptions) => createInjectorMiddleware(() => async (req) => {
+  const casted = plainToClass(Cls, req.body);
+  await validateOrReject(casted, validateOptions);
+  return casted;
+});
+
+class SubmitFormBody {
+  @IsEmail()
+  email: string;
+}
+
+@Service("/submit-form")
+class SubmitFormService {
+  @Post()
+  public async onSubmit(@Validated(SubmitFormBody) body: SubmitFormBody) {
+    console.log(body);
+  }
+
+  // Classes is set to array since class-validator does not throw an error but an array of errors
+  @Catch({ status: 400, classes: Array })
+  public async onError(@CatchError errors: ValidationError[]) {
+    return { errors };
+  }
+}
+
+
+const app = express();
+app.use(createService(new SubmitFormService()));
+app.listen(3000, () => console.log("http://localhost:3000/"));
 ```
