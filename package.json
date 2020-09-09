@@ -67,7 +67,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -g .commitlint.config.json -eV ./.git/COMMIT_EDITMSG"
+      "commit-msg": "commitlint -g .commitlint.config.json -E HUSKY_GIT_PARAMS"
     }
   },
   "lint-staged": {
