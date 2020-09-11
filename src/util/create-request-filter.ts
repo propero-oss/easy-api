@@ -16,11 +16,11 @@ export function registerFilter<K extends keyof ErrorHandlerOptions>(
   ((filterRegistry[option] ?? (filterRegistry[option] = [])) as any[]).push(filterGenerator);
 }
 
-export const needsRequestFilter = (options: HttpHandlerOptions): boolean => Object.keys(options).length > 0;
+export const needsRequestFilter = (options: HttpHandlerOptions): boolean =>
+  !!Object.keys(options).find((key) => !!filterRegistry[key as keyof ErrorHandlerOptions]?.length);
 
-export function buildFilters(options: HttpHandlerOptions | ErrorHandlerOptions, method: string, errorHandler: boolean): RequestFilter[] {
+export function buildFilters(options: HttpHandlerOptions | ErrorHandlerOptions): RequestFilter[] {
   const checks: RequestFilter[] = [];
-  const { classes } = options as ErrorHandlerOptions;
 
   for (const key of Object.keys(options))
     if (filterRegistry[key as keyof ErrorHandlerOptions])
@@ -28,8 +28,6 @@ export function buildFilters(options: HttpHandlerOptions | ErrorHandlerOptions, 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       checks.push(...filterRegistry[key as keyof ErrorHandlerOptions]!.map((it) => it(options[key])));
-
-  if (errorHandler && classes) checks.push(filterClasses(classes));
 
   return checks;
 }
@@ -41,12 +39,8 @@ export function stringOrRegExpMatch(original = "", options: MaybeArray<string | 
   );
 }
 
-export function createRequestFilter(
-  options: HttpHandlerOptions | ErrorHandlerOptions,
-  method: string,
-  errorHandler: boolean
-): RequestFilter {
-  const checks = buildFilters(options, method, errorHandler);
+export function createRequestFilter(options: HttpHandlerOptions | ErrorHandlerOptions): RequestFilter {
+  const checks = buildFilters(options);
   return (req: Request): boolean => !checks.find((it) => !it(req));
 }
 
@@ -74,5 +68,7 @@ registerFilter(
 
 registerFilter("method", (method): RequestFilter => (req) => stringOrRegExpMatch(req.method, method));
 
-export const filterClasses = (classes: MaybeArray<unknown>): RequestFilter => (req) =>
-  !!arrayWrap(classes).find((cls) => req.__error instanceof (cls as any));
+registerFilter(
+  "classes",
+  (classes): RequestFilter => (req) => !!req.__error && !!arrayWrap(classes).find((cls) => req.__error instanceof (cls as any))
+);

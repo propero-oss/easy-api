@@ -22,7 +22,7 @@ function createMethodWrapper(
   method: ExpressMethod | HttpMethod
 ): HttpHandlerMiddleware {
   const bound = (instance as any)[handler].bind(instance);
-  const filter = needsRequestFilter(options) && createRequestFilter(options, method, errorHandler);
+  const filter = needsRequestFilter(options) && createRequestFilter(options);
   let middleware = createInjectorMiddleware(cls, handler, bound);
   middleware = createResponseGenerator(middleware, options.responseType ?? "auto", options.status);
   return errorOrRequestHandler(errorHandler, async (req, res, next) => {
