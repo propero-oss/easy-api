@@ -24,13 +24,17 @@
   "overrides": [
     {
       "files": ["**/test/**/*.test.{j,t}s?(x)"],
-      "env": { "jest": true, "node": true }
+      "env": { "jest": true, "node": true },
+      "rules": {
+        "@typescript-eslint/ban-ts-comment": "off"
+      }
     },
     {
       "files": ["example/**/*"],
       "rules": {
         "no-console": "off",
-        "@typescript-eslint/no-unused-vars": "off"
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/ban-ts-comment": "off"
       }
     }
   ]
