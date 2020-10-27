@@ -1,4 +1,4 @@
-export type Constructor<T = unknown> = new(...args: any[]) => T;
+export type Constructor<T = unknown> = new (...args: any[]) => T;
 
 export function getHierarchy(ctor: Constructor): Constructor[] {
   const ctors: Constructor[] = [];

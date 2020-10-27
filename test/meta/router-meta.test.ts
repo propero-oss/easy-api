@@ -2,7 +2,7 @@ import { addRouterMeta, getRouterMeta } from "src/meta";
 import { RouterMeta } from "src/types";
 
 describe("meta/router-meta.ts", () => {
-  const meta: RouterMeta = { path: "/", factory: (instance) => undefined as any };
+  const meta: RouterMeta = { path: "/", factory: () => undefined as any };
   describe("addRouterMeta(cls, meta)", () => {
     it("should add metadata to a given class", () => {
       class Test {}
