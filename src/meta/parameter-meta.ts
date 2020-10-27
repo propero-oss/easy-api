@@ -2,10 +2,6 @@ export type ParameterMetaRecord<Meta = unknown> = Record<number, Meta>;
 export interface ParameterMetaGenerator<Meta = unknown> {
   (target: unknown, key: string | symbol, index: number): Meta;
 }
-export interface ParameterMetaCollector<Meta = unknown> {
-  // eslint-disable-next-line no-empty-pattern
-  ({}: { target: unknown; property: string | symbol; desc: TypedPropertyDescriptor<any>; meta: ParameterMetaRecord<Meta> }): void;
-}
 
 export function createParameterMetaAccessors<Meta = unknown>(
   name?: string
@@ -31,11 +27,4 @@ export function createParameterMetaDecoratorFactory<Meta = unknown>(
   return (generator) => (target, property, index) => {
     setMeta(target, property, index, generator(target, property, index));
   };
-}
-
-export function createParameterMetaCollector<Meta = unknown>(
-  getMeta: (target: unknown, property: string | symbol) => ParameterMetaRecord<Meta>,
-  collector: ParameterMetaCollector<Meta>
-): (target: unknown, property: string | symbol, desc: TypedPropertyDescriptor<any>) => void {
-  return (target, property, desc) => collector({ target, property, desc, meta: getMeta(target, property) });
 }
