@@ -1,16 +1,8 @@
 import { createInjectorMiddleware } from "src/decorator/request-meta-decorator-factory";
 import { createResponseGenerator } from "src/decorator/response-generator";
 import { addRouterMeta, getHandlerMeta } from "src/meta";
-import {
-  ExpressMethod,
-  HttpErrorHandlerSignature,
-  HttpHandlerMiddleware,
-  HttpHandlerOptions,
-  HttpHandlerSignature,
-  HttpMethod,
-  ServiceOptions,
-} from "src/types";
-import { createRequestFilter, errorMiddleware, needsRequestFilter, normalizePathOptions } from "src/util";
+import { HttpErrorHandlerSignature, HttpHandlerMiddleware, HttpHandlerOptions, HttpHandlerSignature, ServiceOptions } from "src/types";
+import { Constructor, createRequestFilter, errorMiddleware, needsRequestFilter, normalizePathOptions } from "src/util";
 import { NextFunction, Request, Response, Router } from "express";
 
 function createMethodWrapper(
@@ -18,8 +10,7 @@ function createMethodWrapper(
   instance: unknown,
   handler: string | symbol,
   options: HttpHandlerOptions,
-  errorHandler: boolean,
-  method: ExpressMethod | HttpMethod
+  errorHandler: boolean
 ): HttpHandlerMiddleware {
   const bound = (instance as any)[handler].bind(instance);
   const filter = needsRequestFilter(options) && createRequestFilter(options);
@@ -50,7 +41,7 @@ export function Service(pathOrOptions?: string | ServiceOptions, maybeOptions?: 
   const { before: serviceBefore = [], after: serviceAfter = [] } = serviceOptions;
   return (cls) => {
     const factory = (instance: InstanceType<typeof cls & any>) => {
-      const handlers = getHandlerMeta(cls);
+      const handlers = getHandlerMeta((cls as unknown) as Constructor);
       const router = Router(options?.routerOptions);
       for (const { handler, method, path, options, errorHandler } of handlers) {
         const { before = [], after = [] } = options;
@@ -58,7 +49,7 @@ export function Service(pathOrOptions?: string | ServiceOptions, maybeOptions?: 
           path,
           ...serviceBefore,
           ...before,
-          createMethodWrapper(cls, instance, handler, { ...serviceOptions, ...options }, errorHandler, method),
+          createMethodWrapper(cls, instance, handler, { ...serviceOptions, ...options }, errorHandler),
           ...after,
           ...serviceAfter,
         ];
