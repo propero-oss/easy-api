@@ -5,7 +5,7 @@ import { HttpErrorHandlerSignature, HttpHandlerMiddleware, HttpHandlerOptions, H
 import { Constructor, createRequestFilter, errorMiddleware, needsRequestFilter, normalizePathOptions } from "src/util";
 import { NextFunction, Request, Response, Router } from "express";
 
-function createMethodWrapper(
+export function createMethodWrapper(
   cls: unknown,
   instance: unknown,
   handler: string | symbol,
@@ -26,7 +26,10 @@ function createMethodWrapper(
   });
 }
 
-function errorOrRequestHandler(errorHandler: boolean, handler: HttpHandlerSignature): HttpHandlerSignature | HttpErrorHandlerSignature {
+export function errorOrRequestHandler(
+  errorHandler: boolean,
+  handler: HttpHandlerSignature
+): HttpHandlerSignature | HttpErrorHandlerSignature {
   if (errorHandler)
     return ((err: unknown, req: Request, res: Response, next: NextFunction) =>
       handler(...errorMiddleware(err, req, res, next))) as HttpErrorHandlerSignature;
