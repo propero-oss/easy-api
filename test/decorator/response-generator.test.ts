@@ -1,10 +1,8 @@
 import { createResponseGenerator, registerResponseType } from "src/decorator";
 
-
-
 describe("decorator/response-generator.ts", () => {
-  const middleware = async (req: any, res: any, next: any) => undefined;
-  const middleware2 = async (req: any, res: any, next: any) => "foo";
+  const middleware = async () => undefined;
+  const middleware2 = async () => "foo";
   async function generator(name: string, req: any, res?: any, next?: any, status?: number, result?: any) {
     return await createResponseGenerator(() => result, name as any, status)(req, res, next);
   }
