@@ -1,4 +1,5 @@
-import { errorOrRequestHandler } from "src/decorator";
+import { createMethodWrapper, errorOrRequestHandler, Get, Post, Service } from "src/decorator";
+import { createService } from "src/util";
 
 describe("decorator/service-decorator.ts", () => {
   describe("errorOrRequestHandler(errorHandler, handler)", () => {
@@ -20,11 +21,33 @@ describe("decorator/service-decorator.ts", () => {
   });
 
   describe("createMethodWrapper(cls, instance, handler, options, errorHandler)", () => {
-    it.todo("should create a middleware for a given handler definition");
-    it.todo("should forward errors to the next function");
+    it("should create a middleware for a given handler definition", async () => {
+      // eslint-disable-next-line
+      class Test { foo() {} }
+      const instance = new Test();
+      const end = jest.fn();
+      const wrapper = createMethodWrapper(Test, instance, "foo", { responseType: "none" }, false);
+      await (wrapper as any)({}, { end }, {});
+      expect(end).toHaveBeenCalledWith();
+    });
+
+    it("should forward errors to the next function", async () => {
+      // eslint-disable-next-line
+      class Test { foo() {} }
+      const instance = new Test();
+      const next = jest.fn();
+      const wrapper = createMethodWrapper(Test, instance, "foo", { responseType: "none" }, false);
+      await (wrapper as any)({}, {}, next);
+      expect(next).toHaveBeenCalled();
+    });
   });
 
   describe("Service(pathOrOptions, maybeOptions)", () => {
-    it.todo("should generate a factory for creating an express router for a given class");
+    it("should generate a factory for creating an express router for a given class", () => {
+      // eslint-disable-next-line
+      @Service() class Test { @Get() foo() {} @Get() bar() {} @Post() baz() {} }
+      const service = createService(new Test());
+      expect(service.stack).toHaveLength(3);
+    });
   });
 });
