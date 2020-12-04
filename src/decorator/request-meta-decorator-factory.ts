@@ -10,7 +10,7 @@ export function createInjectorMiddleware(
   target: unknown,
   property: string | symbol,
   method: unknown,
-  instance: unknown
+  instance?: unknown
 ): (req: Request, res: Response, next: NextFunction) => unknown {
   // Get parameter metadata values for parameter injection
   const meta = Object.values(getMeta(target, property));
