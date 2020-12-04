@@ -1,3 +1,4 @@
+export * from "./create-service";
 export * from "./http-method-decorator-facoty";
 export * from "./http-method-decorators";
 export * from "./request-meta-decorator-factory";

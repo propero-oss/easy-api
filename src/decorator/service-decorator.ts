@@ -14,12 +14,12 @@ export function createMethodWrapper(
 ): HttpHandlerMiddleware {
   const bound = (instance as any)[handler].bind(instance);
   const filter = needsRequestFilter(options) && createRequestFilter(options);
-  let middleware = createInjectorMiddleware(cls, handler, bound);
+  let middleware = createInjectorMiddleware(cls, handler, bound, instance);
   middleware = createResponseGenerator(middleware, options.responseType ?? "auto", options.status);
-  return errorOrRequestHandler(errorHandler, async (req, res, next) => {
+  return errorOrRequestHandler(errorHandler, async function (this: any, req, res, next) {
     if (filter && !filter(req)) return next(req.__error || undefined);
     try {
-      return await middleware(req, res, next);
+      return await middleware.call(this, req, res, next);
     } catch (e) {
       next(e);
     }
