@@ -44,5 +44,16 @@ describe("decorator/request-meta-decorator-factory", () => {
       const result = await middleware(foo, bar, baz);
       expect(result).toEqual([foo, bar, baz]);
     });
+
+    it("should provide correct context to the decorator generators", async () => {
+      const Decorator = createRequestInjector((cls) => (req, res, next, cxt) => [cls, cxt]);
+      // eslint-disable-next-line
+      class Test { @Get() foo(@Decorator foo: any[]) { return foo; } }
+      const instance = new Test();
+      const middleware = createInjectorMiddleware(Test.prototype, "foo", Test.prototype.foo);
+      // @ts-expect-error
+      const result = await middleware.call(instance, foo, bar, baz);
+      expect(result).toEqual([Test.prototype, instance]);
+    });
   });
 });

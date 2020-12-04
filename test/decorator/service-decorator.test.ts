@@ -1,5 +1,4 @@
-import { createMethodWrapper, errorOrRequestHandler, Get, Post, Service } from "src/decorator";
-import { createService } from "src/util";
+import { createMethodWrapper, errorOrRequestHandler, Get, Post, Service, createService } from "src/decorator";
 
 describe("decorator/service-decorator.ts", () => {
   describe("errorOrRequestHandler(errorHandler, handler)", () => {

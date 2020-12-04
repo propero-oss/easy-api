@@ -1,5 +1,5 @@
 import express from "express";
-import { createService } from "src/util";
+import { createService } from "src";
 
 export const app = express();
 export const mount = (path: string | undefined, instance: unknown): void => {

@@ -1,7 +1,6 @@
-import { Service } from "src/decorator";
-import { createService } from "src/util";
+import { Service, createService } from "src/decorator";
 
-describe("util/create-service.ts", () => {
+describe("decorator/create-service.ts", () => {
   describe("createService(instance)", () => {
     it("should create a router for a given service instance", () => {
       @Service()
