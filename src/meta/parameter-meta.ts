@@ -4,7 +4,7 @@ export interface ParameterMetaGenerator<Meta = unknown> {
 }
 
 export function reflectParameterType(proto: unknown, key: string | symbol, index: number): unknown {
-  return proto ? Reflect.getMetadata?.("design:paramtypes", proto as any, key)?.[index] : undefined;
+  return proto ? (Reflect as any).getMetadata?.("design:paramtypes", proto as any, key)?.[index] : undefined;
 }
 
 export function createParameterMetaAccessors<Meta = unknown>(
