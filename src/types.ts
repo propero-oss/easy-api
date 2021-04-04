@@ -19,6 +19,8 @@ export type HttpHandlerMiddleware = HttpHandlerSignature | HttpErrorHandlerSigna
 export type ResponseGenerator = (middleware: HttpHandlerSignature, status?: number) => HttpHandlerSignature;
 export type RequestFilter = (req: Request) => boolean;
 export type MaybeArray<T> = T | T[];
+export type MaybePromise<T> = T | Promise<T>;
+export type Parser<T, From = string> = (it: From) => MaybePromise<T>;
 
 export interface HttpHandlerOptions {
   contentType?: MaybeArray<string | RegExp>;
