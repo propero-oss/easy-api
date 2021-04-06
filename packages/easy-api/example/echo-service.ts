@@ -2,7 +2,8 @@ import { Mount } from "example/app-init";
 import { Request } from "express";
 import { All, createRequestInjector, Req, Service } from "src/index";
 
-const This = createRequestInjector(() => (req, res, next, cxt) => cxt);
+// paramTypeHint is only available if "reflect-metadata" has been imported.
+const This = createRequestInjector((proto, propertyKey, paramTypeHint) => (req, res, next, cxt) => cxt);
 
 @Mount("/echo")
 @Service()

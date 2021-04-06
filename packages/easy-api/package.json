@@ -1,0 +1,75 @@
+{
+  "name": "@propero/easy-api",
+  "version": "0.0.0",
+  "description": "Build powerful Rest APIs with simple typescript decorators",
+  "since": "2020",
+  "main": "dist/easy-api.cjs.js",
+  "module": "dist/easy-api.esm.js",
+  "unpkg": "dist/easy-api.umd.js",
+  "browser": "dist/easy-api.iife.js",
+  "types": "dist/easy-api.esm.d.ts",
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "build:watch": "rollup -cw rollup.config.js",
+    "start": "node dist/easy-api.cjs.js",
+    "clean": "rimraf dist docs coverage",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "keywords": [
+    "easy",
+    "api",
+    "rest",
+    "typescript",
+    "decorator"
+  ],
+  "author": "Propero Team <team@propero.dev>",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^18.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.2.1",
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/commit-analyzer": "^8.0.1",
+    "@semantic-release/git": "^9.0.0",
+    "@semantic-release/github": "^7.2.0",
+    "@semantic-release/npm": "^7.1.0",
+    "@semantic-release/release-notes-generator": "^9.0.2",
+    "@types/express": "^4.17.11",
+    "@types/jest": "^26.0.22",
+    "@types/node": "^14.14.37",
+    "@typescript-eslint/eslint-plugin": "^4.20.0",
+    "@typescript-eslint/parser": "^4.20.0",
+    "@wessberg/rollup-plugin-ts": "^1.3.11",
+    "dotenv-flow": "^3.2.0",
+    "jest": "^26.6.3",
+    "jest-preset-typescript": "^1.2.0",
+    "lodash": "^4.17.21",
+    "reflect-metadata": "^0.1.13",
+    "rollup": "^2.44.0",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-ts-paths": "^1.0.5",
+    "semantic-release": "^17.4.2",
+    "ts-jest": "^26.5.4",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/propero-oss/easy-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/propero-oss/easy-api/issues"
+  },
+  "homepage": "https://github.com/propero-oss/easy-api/packages/easy-api#readme"
+}
