@@ -18,6 +18,7 @@ describe("decorator/mount.ts", () => {
     @Mount(undefined, "foo", "bar")
     @Mount("/test", "foo", "bar")
     @Service()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     class Test {
       constructor(foo: string, bar: string) {
         expect(foo).toEqual("foo");

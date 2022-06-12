@@ -46,29 +46,41 @@ export function createRequestFilter(options: HttpHandlerOptions | ErrorHandlerOp
 
 registerFilter(
   "contentType",
-  (contentType: MaybeArray<string | RegExp>): RequestFilter => (req) => stringOrRegExpMatch(req.headers["content-type"], contentType)
+  (contentType: MaybeArray<string | RegExp>): RequestFilter =>
+    (req) =>
+      stringOrRegExpMatch(req.headers["content-type"], contentType)
 );
 
 registerFilter(
   "accept",
-  (accepts: MaybeArray<string | RegExp>): RequestFilter => (req) => !!req.accepts().find((it) => stringOrRegExpMatch(it, accepts))
+  (accepts: MaybeArray<string | RegExp>): RequestFilter =>
+    (req) =>
+      !!req.accepts().find((it) => stringOrRegExpMatch(it, accepts))
 );
 
 registerFilter(
   "headers",
-  (headers: IncomingHttpHeaders): RequestFilter => (req) => {
-    for (const [header, value] of Object.entries(headers)) {
-      const reqHeader = arrayWrap(req.headers[header]!);
-      const headers = arrayWrap(value!);
-      for (const header of headers) if (!reqHeader.includes(header)) return false;
+  (headers: IncomingHttpHeaders): RequestFilter =>
+    (req) => {
+      for (const [header, value] of Object.entries(headers)) {
+        const reqHeader = arrayWrap(req.headers[header]!);
+        const headers = arrayWrap(value!);
+        for (const header of headers) if (!reqHeader.includes(header)) return false;
+      }
+      return true;
     }
-    return true;
-  }
 );
 
-registerFilter("method", (method): RequestFilter => (req) => stringOrRegExpMatch(req.method, method));
+registerFilter(
+  "method",
+  (method): RequestFilter =>
+    (req) =>
+      stringOrRegExpMatch(req.method, method)
+);
 
 registerFilter(
   "classes",
-  (classes): RequestFilter => (req) => !!req.__error && !!arrayWrap(classes).find((cls) => req.__error instanceof (cls as any))
+  (classes): RequestFilter =>
+    (req) =>
+      !!req.__error && !!arrayWrap(classes).find((cls) => req.__error instanceof (cls as any))
 );

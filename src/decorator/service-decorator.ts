@@ -44,7 +44,7 @@ export function Service(pathOrOptions?: string | ServiceOptions, maybeOptions?: 
   const { before: serviceBefore = [], after: serviceAfter = [] } = serviceOptions;
   return (cls) => {
     const factory = (instance: InstanceType<typeof cls & any>) => {
-      const handlers = getHandlerMeta((cls as unknown) as Constructor);
+      const handlers = getHandlerMeta(cls as unknown as Constructor);
       const router = Router(options?.routerOptions);
       for (const { handler, method, path, options, errorHandler } of handlers) {
         const { before = [], after = [] } = options;

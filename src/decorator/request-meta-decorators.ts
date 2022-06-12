@@ -23,13 +23,13 @@ export const Hostname = createRequestInjector(() => (req) => req.hostname);
 export const UserAgent = createRequestInjector(() => (req) => req.headers["user-agent"]);
 
 export const Body = (field?: string): ParameterDecorator =>
-  createRequestInjector(() => (req) => (field != null ? req.body[field] : req.body));
+  createRequestInjector(() => (req) => field != null ? req.body[field] : req.body);
 export const Session = (field?: string): ParameterDecorator =>
-  createRequestInjector(() => (req) => (field != null ? (req as any).session?.[field] : (req as any).session));
+  createRequestInjector(() => (req) => field != null ? (req as any).session?.[field] : (req as any).session);
 
 export const Cookie = (field?: string): ParameterDecorator =>
-  createRequestInjector(() => (req) => (field != null ? req.cookies[field] : req.cookies));
+  createRequestInjector(() => (req) => field != null ? req.cookies[field] : req.cookies);
 export const SignedCookie = (field?: string): ParameterDecorator =>
-  createRequestInjector(() => (req) => (field != null ? req.signedCookies[field] : req.signedCookies));
+  createRequestInjector(() => (req) => field != null ? req.signedCookies[field] : req.signedCookies);
 
 export const CatchError = createRequestInjector(() => (req) => (req as any).__error);
