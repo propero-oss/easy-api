@@ -1,6 +1,7 @@
 import {
   Body,
   CatchError,
+  Cookie,
   createInjectorMiddleware,
   Get,
   Header,
@@ -12,6 +13,7 @@ import {
   Req,
   Res,
   Session,
+  SignedCookie,
   UserAgent,
 } from "src/decorator";
 
@@ -52,7 +54,7 @@ describe("decorator/request-meta-decorators.ts", () => {
     });
 
     it("should use a given parser on parameters", async () => {
-      expect(await decorated(Param("foo", parseInt), { params: { foo: "2" } })).toEqual(2);
+      expect(await decorated(Param("foo", parseInt as any), { params: { foo: "2" } })).toEqual(2);
     });
   });
 
@@ -62,7 +64,7 @@ describe("decorator/request-meta-decorators.ts", () => {
     });
 
     it("should use a given parse on parameters", async () => {
-      expect(await decorated(Query("foo", parseInt), { query: { foo: "2" } })).toEqual(2);
+      expect(await decorated(Query("foo", parseInt as any), { query: { foo: "2" } })).toEqual(2);
     });
   });
 
@@ -113,6 +115,26 @@ describe("decorator/request-meta-decorators.ts", () => {
   describe("CatchError", () => {
     it("should inject the middleware error", async () => {
       expect(await decorated(CatchError, { __error: foo })).toEqual(foo);
+    });
+  });
+
+  describe("Cookie", () => {
+    it("should inject a cookie", async () => {
+      expect(await decorated(Cookie("foo"), { cookies: foo })).toEqual("foo");
+    });
+
+    it("should inject all cookies", async () => {
+      expect(await decorated(Cookie(), { cookies: foo })).toEqual(foo);
+    });
+  });
+
+  describe("SignedCookie", () => {
+    it("should inject a cookie", async () => {
+      expect(await decorated(SignedCookie("foo"), { signedCookies: foo })).toEqual("foo");
+    });
+
+    it("should inject all cookies", async () => {
+      expect(await decorated(SignedCookie(), { signedCookies: foo })).toEqual(foo);
     });
   });
 });

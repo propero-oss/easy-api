@@ -1,4 +1,5 @@
 import { createResponseGenerator, registerResponseType } from "src/decorator";
+import { Redirect, redirect } from "src/util";
 
 describe("decorator/response-generator.ts", () => {
   const middleware = async () => undefined;
@@ -39,6 +40,13 @@ describe("decorator/response-generator.ts", () => {
       expect(end).toHaveBeenCalled();
       expect(status).toHaveBeenCalledWith(404);
     });
+
+    it("should redirect if a redirect is returned", async () => {
+      const end = jest.fn();
+      const writeHead = jest.fn();
+      await generator("none", undefined, { end, writeHead }, undefined, undefined, redirect("/test", Redirect.PERMANENT));
+      expect(writeHead).toHaveBeenCalledWith(Redirect.PERMANENT, { location: "/test" });
+    });
   });
 
   describe("response type [raw]", () => {
@@ -57,6 +65,13 @@ describe("decorator/response-generator.ts", () => {
       expect(result).toEqual(foo);
       expect(status).toHaveBeenCalledWith(500);
     });
+
+    it("should redirect if a redirect is returned", async () => {
+      const end = jest.fn();
+      const writeHead = jest.fn();
+      await generator("none", undefined, { end, writeHead }, undefined, undefined, redirect("/test", Redirect.PERMANENT));
+      expect(writeHead).toHaveBeenCalledWith(Redirect.PERMANENT, { location: "/test" });
+    });
   });
 
   describe("response type [json]", () => {
@@ -74,6 +89,13 @@ describe("decorator/response-generator.ts", () => {
       expect(json).toHaveBeenCalledWith(foo);
       expect(result).toEqual(foo);
       expect(status).toHaveBeenCalledWith(401);
+    });
+
+    it("should redirect if a redirect is returned", async () => {
+      const end = jest.fn();
+      const writeHead = jest.fn();
+      await generator("none", undefined, { end, writeHead }, undefined, undefined, redirect("/test", Redirect.PERMANENT));
+      expect(writeHead).toHaveBeenCalledWith(Redirect.PERMANENT, { location: "/test" });
     });
   });
 
@@ -97,6 +119,13 @@ describe("decorator/response-generator.ts", () => {
       const status = jest.fn();
       await generator("stream", undefined, { status }, undefined, 400, { on, pipe });
       expect(status).toHaveBeenCalledWith(400);
+    });
+
+    it("should redirect if a redirect is returned", async () => {
+      const end = jest.fn();
+      const writeHead = jest.fn();
+      await generator("none", undefined, { end, writeHead }, undefined, undefined, redirect("/test", Redirect.PERMANENT));
+      expect(writeHead).toHaveBeenCalledWith(Redirect.PERMANENT, { location: "/test" });
     });
   });
 
@@ -137,6 +166,13 @@ describe("decorator/response-generator.ts", () => {
       const send = jest.fn();
       await generator("auto", undefined, { status, send }, undefined, 201);
       expect(status).toHaveBeenCalledWith(201);
+    });
+
+    it("should redirect if a redirect is returned", async () => {
+      const end = jest.fn();
+      const writeHead = jest.fn();
+      await generator("none", undefined, { end, writeHead }, undefined, undefined, redirect("/test", Redirect.PERMANENT));
+      expect(writeHead).toHaveBeenCalledWith(Redirect.PERMANENT, { location: "/test" });
     });
   });
 });

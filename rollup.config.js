@@ -1,7 +1,6 @@
 import sourcemaps from "rollup-plugin-sourcemaps";
 import commonjs from "@rollup/plugin-commonjs";
-import ts from "@wessberg/rollup-plugin-ts";
-import paths from "rollup-plugin-ts-paths";
+import ts from "rollup-plugin-ts";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import json from "@rollup/plugin-json";
 import { terser } from "rollup-plugin-terser";
@@ -9,7 +8,7 @@ import { spawn } from "child_process";
 import { keys, mapValues, upperFirst, camelCase, template } from "lodash";
 import pkg from "./package.json";
 
-const { main, dependencies, module, unpkg, browser } = pkg;
+const { main, dependencies, module } = pkg;
 const formatModule = (name) => upperFirst(camelCase(name.indexOf("@") !== -1 ? name.split("/")[1] : name));
 const yearRange = (date) => (new Date().getFullYear() === +date ? date : `${date} - ${new Date().getFullYear()}`);
 const year = yearRange(pkg.since || new Date().getFullYear());
@@ -30,12 +29,7 @@ const banner = template(`
 
 const live = !!process.env.ROLLUP_WATCH;
 
-const outputs = [
-  { format: "cjs", file: main },
-  !live && { format: "umd", file: unpkg },
-  !live && { format: "esm", file: module },
-  !live && { format: "iife", file: browser },
-].filter((it) => it);
+const outputs = [{ format: "cjs", file: main }, !live && { format: "esm", file: module }].filter((it) => it);
 
 export default {
   input: live ? "example/index.ts" : "src/index.ts",
@@ -54,7 +48,6 @@ export default {
   },
   plugins: [
     sourcemaps(),
-    paths(),
     commonjs(),
     nodeResolve(),
     json({ compact: true }),
