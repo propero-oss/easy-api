@@ -16,12 +16,15 @@ export function createParameterMetaAccessors<Meta = unknown>(
 } {
   const key = Symbol(name);
   const getMeta = (target: unknown, property: string | symbol): ParameterMetaRecord<Meta> => {
+    if (property === "__proto__") throw new Error("unable to get or set __proto__ property via meta");
     if (typeof target !== "function") target = (target as any).constructor;
     const allMeta = (target as any)[key] ?? ((target as any)[key] = {});
     return allMeta[property] ?? (allMeta[property] = {});
   };
-  const setMeta = (target: unknown, property: string | symbol, index: number, value: Meta): Meta =>
-    (getMeta(target, property)[index] = value);
+  const setMeta = (target: unknown, property: string | symbol, index: number, value: Meta): Meta => {
+    if (property === "__proto__" || (index as any) === "__proto__") throw new Error("unable to get or set __proto__ property via meta");
+    return (getMeta(target, property)[index] = value);
+  };
   return { getMeta, setMeta, key };
 }
 
