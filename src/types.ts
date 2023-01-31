@@ -4,7 +4,6 @@ import { HTTP_HANDLER_META, ROUTER_META } from "src/constants";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD" | "OPTIONS";
 export type ExpressMethod = "USE" | "ALL";
-export type ExpressResponseType = "none" | "raw" | "json" | "auto";
 export interface HttpHandlerDecorator {
   (path?: string, options?: HttpHandlerOptions): MethodDecorator;
   (options?: HttpHandlerOptions): MethodDecorator;
@@ -26,7 +25,6 @@ export interface HttpHandlerOptions {
   contentType?: MaybeArray<string | RegExp>;
   accept?: MaybeArray<string | RegExp>;
   headers?: IncomingHttpHeaders;
-  responseType?: ExpressResponseType;
   before?: HttpHandlerMiddleware[];
   after?: HttpHandlerMiddleware[];
   status?: number;
@@ -69,3 +67,15 @@ declare module "express" {
     __error?: unknown;
   }
 }
+
+export interface HttpResponse<T = any> {
+  status?: number;
+  data?: T;
+  redirect?: string;
+  headers?: Record<string, string | string[]>;
+  contentType?: string;
+  raw?: boolean;
+  contentLength?: number;
+}
+
+export type AsyncHttpResponse<T> = Promise<HttpResponse<T>>;

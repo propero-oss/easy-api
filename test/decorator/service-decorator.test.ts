@@ -25,19 +25,24 @@ describe("decorator/service-decorator.ts", () => {
       class Test { foo() {} }
       const instance = new Test();
       const end = jest.fn();
-      const wrapper = createMethodWrapper(Test, instance, "foo", { responseType: "none" }, false);
+      const wrapper = createMethodWrapper(Test, instance, "foo", {}, false);
       await (wrapper as any)({}, { end }, {});
       expect(end).toHaveBeenCalledWith();
     });
 
     it("should forward errors to the next function", async () => {
       // eslint-disable-next-line
-      class Test { foo() {} }
+      const error = new Error("test");
+      class Test {
+        foo() {
+          throw error;
+        }
+      }
       const instance = new Test();
       const next = jest.fn();
-      const wrapper = createMethodWrapper(Test, instance, "foo", { responseType: "none" }, false);
+      const wrapper = createMethodWrapper(Test, instance, "foo", {}, false);
       await (wrapper as any)({}, {}, next);
-      expect(next).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 

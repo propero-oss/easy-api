@@ -1,5 +1,7 @@
 import { Mount } from "example/app-init";
 import { Catch, CatchError, Get, Query, Service } from "src/decorator";
+import { AsyncHttpResponse } from "src/types";
+import { ResponseStatus } from "src/util";
 
 class FooError extends Error {}
 class BarError extends Error {}
@@ -22,5 +24,26 @@ class HelloService {
   @Catch({ status: 400 })
   public async onError(@CatchError error: Error) {
     return "Bad Request";
+  }
+
+  @Get("/custom-status-and-headers")
+  public async customStatusAndHeaders(): AsyncHttpResponse<string> {
+    return {
+      data: '"hello!"',
+      headers: {
+        "X-My-Custom-Header": "yes",
+      },
+      status: ResponseStatus.CREATED,
+      contentType: "application/json",
+      contentLength: 8,
+    };
+  }
+
+  @Get("/redirect")
+  public async redirect(@Query("to") to = "/hello") {
+    return {
+      status: ResponseStatus.TEMPORARY_REDIRECT,
+      redirect: to,
+    };
   }
 }

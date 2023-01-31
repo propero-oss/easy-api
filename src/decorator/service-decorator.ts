@@ -1,9 +1,9 @@
 import { createInjectorMiddleware } from "src/decorator/request-meta-decorator-factory";
-import { createResponseGenerator } from "src/decorator/response-generator";
 import { addRouterMeta, getHandlerMeta } from "src/meta";
 import { HttpErrorHandlerSignature, HttpHandlerMiddleware, HttpHandlerOptions, HttpHandlerSignature, ServiceOptions } from "src/types";
 import { Constructor, createRequestFilter, errorMiddleware, needsRequestFilter, normalizePathOptions } from "src/util";
 import { NextFunction, Request, Response, Router } from "express";
+import { handleResponse } from "src/util/http-response";
 
 export function createMethodWrapper(
   cls: unknown,
@@ -15,14 +15,10 @@ export function createMethodWrapper(
   const bound = (instance as any)[handler].bind(instance);
   const filter = needsRequestFilter(options) && createRequestFilter(options);
   let middleware = createInjectorMiddleware(cls, handler, bound, instance);
-  middleware = createResponseGenerator(middleware, options.responseType ?? "auto", options.status);
+  middleware = handleResponse(middleware);
   return errorOrRequestHandler(errorHandler, async function (this: any, req, res, next) {
     if (filter && !filter(req)) return next(req.__error || undefined);
-    try {
-      return await middleware.call(this, req, res, next);
-    } catch (e) {
-      next(e);
-    }
+    return await middleware.call(this, req, res, next);
   });
 }
 

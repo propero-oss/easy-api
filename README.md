@@ -2,12 +2,17 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/d843b9fcb8d7fe37a6f5/maintainability)](https://codeclimate.com/github/propero-oss/easy-api/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/d843b9fcb8d7fe37a6f5/test_coverage)](https://codeclimate.com/github/propero-oss/easy-api/test_coverage)
+[![Build Status](https://app.travis-ci.com/propero-oss/easy-api.svg?branch=master)](https://app.travis-ci.com/propero-oss/easy-api)
 
-
+## Installing
 ```shell
 npm i @propero/easy-api
-# Or with yarn
+```
+```shell
 yarn add @propero/easy-api
+```
+```shell
+pnpm add @propero/easy-api
 ```
 
 ## Documentation
