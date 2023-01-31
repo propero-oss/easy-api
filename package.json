@@ -72,5 +72,8 @@
   "bugs": {
     "url": "https://github.com/propero-oss/easy-api/issues"
   },
-  "homepage": "https://github.com/propero-oss/easy-api#readme"
+  "homepage": "https://github.com/propero-oss/easy-api#readme",
+  "release": {
+    "branches": ["main"]
+  }
 }
