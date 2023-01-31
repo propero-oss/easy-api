@@ -2,7 +2,7 @@ name: deploy-master
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   deploy-master:
     runs-on: ubuntu-latest
