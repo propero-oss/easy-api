@@ -1,7 +1,7 @@
 import { Response } from "express";
-import { applyHttpResponse, handleResponse, isHttpResponse } from "src/util";
+import { applyHttpResponse, createExpressErrorHandler, handleError, handleResponse, isHttpResponse } from "src/util";
 
-function responseStub(): Partial<Response> {
+function responseStub(): Response {
   return {
     status: jest.fn(),
     redirect: jest.fn(),
@@ -10,7 +10,7 @@ function responseStub(): Partial<Response> {
     send: jest.fn(),
     json: jest.fn(),
     setHeader: jest.fn(),
-  };
+  } as any;
 }
 
 describe("util/http-response.ts", () => {
@@ -151,6 +151,73 @@ describe("util/http-response.ts", () => {
       const next = jest.fn();
       await mw(undefined as any, undefined as any, next);
       expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe("handleError", () => {
+    it("should set the status code of a response appropriately", async () => {
+      const res = responseStub();
+      handleError("ok", res);
+      expect(res.status).toHaveBeenLastCalledWith(200);
+      handleError(new Error("Bad Request"), res);
+      expect(res.status).toHaveBeenLastCalledWith(400);
+      handleError(new Error(), res);
+      expect(res.status).toHaveBeenLastCalledWith(500);
+    });
+    it("should send strings as is", async () => {
+      const res = responseStub();
+      handleError("this is a text", res);
+      expect(res.send).toHaveBeenCalledWith("this is a text");
+    });
+    it("should end the response for undefined", async () => {
+      const res = responseStub();
+      handleError(undefined, res);
+      expect(res.end).toHaveBeenCalled();
+    });
+    it("should pass through streams", async () => {
+      const res = responseStub();
+      const stream = { pipe: jest.fn(), on: (ev: string, handler: () => void) => handler() };
+      handleError(stream, res);
+      expect(stream.pipe).toHaveBeenCalledWith(res);
+      expect(res.end).toHaveBeenCalled();
+    });
+    it("should not give out too many details on errors in production mode", async () => {
+      const res = responseStub();
+      handleError(new Error("foo"), res);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Internal Server Error",
+        detail: "foo",
+        type: "Error",
+        status: 500,
+      });
+    });
+    it("should give out the entire error object in debug mode", () => {
+      const res = responseStub();
+      const err = new Error("foo");
+      handleError(err, res, true);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Internal Server Error",
+        detail: err,
+        type: "Error",
+        status: 500,
+      });
+    });
+    it("should treat non-error objects as json payloads", async () => {
+      const res = responseStub();
+      handleError({ foo: "bar" }, res);
+      expect(res.json).toHaveBeenCalledWith({ foo: "bar" });
+    });
+  });
+
+  describe("createExpressErrorHandler", () => {
+    it("should create an express error handler", async () => {
+      const spy = jest.fn(() => true);
+      const res = responseStub();
+      const req = { foo: "bar" } as any;
+      const err = new Error("unauthorized");
+      const handler = createExpressErrorHandler(spy);
+      handler(err, req, res, () => undefined);
+      expect(spy).toHaveBeenCalledWith(req, err);
     });
   });
 });

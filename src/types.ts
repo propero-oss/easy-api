@@ -59,7 +59,7 @@ export interface WithRouterMeta {
 }
 
 export interface ServiceOptions extends HttpHandlerOptions {
-  routerOptions: RouterOptions;
+  routerOptions?: RouterOptions;
 }
 
 declare module "express" {

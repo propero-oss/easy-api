@@ -1,5 +1,6 @@
-import { Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { HttpHandlerSignature, HttpResponse } from "src/types";
+import { getStatusCode, getStatusText } from "src/util/response-status";
 
 export function isHttpResponse(it: unknown): it is HttpResponse {
   if (!it || typeof it !== "object") return false;
@@ -38,6 +39,28 @@ export function handleResponse(middleware: HttpHandlerSignature): HttpHandlerSig
       next(e);
     }
   };
+}
+
+export function handleError(err: unknown, res: Response, debug = false) {
+  const statusCode = getStatusCode(err);
+  if (statusCode) res.status(statusCode);
+  if (typeof err === "string") return res.send(err);
+  else if (isStream(err)) return applyStream(err, res);
+  else if (typeof err === "undefined") return res.end();
+  else if (typeof err === "object" && err != null && err instanceof Error)
+    return res.json({
+      error: getStatusText(statusCode!),
+      detail: debug ? err : err.message,
+      type: err.name ?? err.constructor?.name,
+      status: statusCode,
+    });
+  else return res.json(err);
+}
+
+export function createExpressErrorHandler(debug: boolean | ((req: Request, err: unknown) => boolean) = false) {
+  const isDebug = typeof debug === "function" ? debug : () => debug;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return (err: unknown, req: Request, res: Response, next: NextFunction) => handleError(err, res, isDebug(req, err));
 }
 
 interface ReadableStream {

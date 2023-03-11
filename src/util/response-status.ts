@@ -63,3 +63,59 @@ export enum ResponseStatus {
   NOT_EXTENDED = 510,
   NETWORK_AUTHENTICATION_REQUIRED = 511,
 }
+
+const statusTexts: Record<ResponseStatus, string> = Object.fromEntries(
+  Object.entries(ResponseStatus).map(([text, status]) => [
+    status,
+    text.replace(/[A-Z]+/g, (match) => match.slice(0, 1) + match.slice(1).toLowerCase()).replace(/_/g, " "),
+  ])
+) as any;
+
+export function getStatusText(code: ResponseStatus): string {
+  return statusTexts[code];
+}
+
+export function getStatusCode(data: unknown): ResponseStatus | undefined {
+  switch (typeof data) {
+    case "bigint":
+    case "number":
+      return data.toString() in statusTexts ? (data as ResponseStatus) : undefined;
+    case "boolean":
+    case "undefined":
+      return;
+    case "object":
+      if (!data) return;
+      if (Array.isArray(data)) return data.map(getStatusCode).find((it) => it) ?? undefined;
+      return objectStatus(data);
+    case "string":
+      return stringStatus(data);
+    case "function":
+      return;
+  }
+}
+
+const statusRegex = new RegExp(
+  Object.keys(ResponseStatus)
+    .map((it) => `\\b${it.replace(/_/g, "[ _]").toLowerCase()}\\b`)
+    .join("|"),
+  "i"
+);
+
+function stringStatus(str: string): ResponseStatus | undefined {
+  str = str.trim().toLowerCase();
+  if (!str) return;
+  const code = /^[0-9]+/.exec(str);
+  if (code && code[0] in statusTexts) return +code[0];
+  const match = statusRegex.exec(str);
+  if (match) return (ResponseStatus as any)[match[0].toUpperCase().replace(/\s/g, "_")];
+}
+
+function objectStatus(data: any | null): ResponseStatus | undefined {
+  if (!data) return;
+  for (const key of ["status", "response", "error", "message"])
+    if (key in data && data[key]) {
+      const status = getStatusCode(data[key]);
+      if (status) return status;
+    }
+  if (data instanceof Error) return ResponseStatus.INTERNAL_SERVER_ERROR;
+}
